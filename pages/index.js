@@ -1,23 +1,48 @@
-import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CustomTextField from "../components/customTextField";
+import { useState, useEffect } from "react";
+import Router from "next/router";
 
 export default function Login() {
-  const handleSubmit = (event) => {
+  function handleSubmit(event) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
-  };
+    const body = {
+      email: event.currentTarget.email.value,
+      password: event.currentTarget.password.value,
+    };
+    fetch("http://localhost:8080/v1/auth", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status == null) {
+          sessionStorage.setItem("token", data.token);
+          sessionStorage.setItem("expirationDate", data.expirationDate);
+          Router.push("/home");
+        }
+      });
+  }
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    const expirationDate =
+      sessionStorage.getItem("expirationDate") == null
+        ? null
+        : new Date(sessionStorage.getItem("expirationDate"));
+    if (token != null && expirationDate > Date.now()) {
+      Router.push("/home");
+    }
+  }, []);
 
   return (
     <div className="container">
-      <head>
-        <title>Login</title>
-      </head>
+      <title>Login</title>
       <main>
         <h1 className="title">Login Demo</h1>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>

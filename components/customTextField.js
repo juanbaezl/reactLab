@@ -14,6 +14,7 @@ export default class CustomTextField extends React.Component {
         id={this.props.identifier}
         label={this.props.label}
         name={this.props.identifier}
+        type={this.props.passswd ? "password" : "text"}
         autoComplete={this.props.password ? "current-password" : "email"}
         autoFocus
       />
